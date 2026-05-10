@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Selector — Visual Element Picker</title>
+<title>Selector - Extension Install</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='6' fill='%23111'/></svg>">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -12,108 +12,67 @@
     font-family:'SF Mono',Menlo,Monaco,'Cascadia Code',monospace;
     min-height:100vh;display:flex;align-items:center;justify-content:center;
   }
-  .wrap{max-width:460px;width:100%;padding:48px 32px}
+  .wrap{max-width:640px;width:100%;padding:48px 32px}
   .dot{width:6px;height:6px;background:#4ade80;border-radius:50%;
        display:inline-block;margin-right:8px;
        animation:pulse 2.4s ease-in-out infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
   .status{display:flex;align-items:center;margin-bottom:32px;font-size:11px;color:#404040;letter-spacing:.1em;text-transform:uppercase}
-  h1{font-size:20px;font-weight:500;color:#fff;margin-bottom:6px;letter-spacing:-.02em}
-  .sub{font-size:12px;color:#505050;margin-bottom:44px;line-height:1.6}
-  .steps{display:flex;flex-direction:column;gap:32px}
-  .step{display:flex;gap:20px}
-  .num{font-size:11px;color:#444;width:16px;flex-shrink:0;padding-top:1px}
-  .step-body{flex:1}
-  .step-title{font-size:12px;color:#888;margin-bottom:10px}
-  .bm{
-    display:inline-block;padding:10px 22px;
-    background:#fff;color:#0a0a0a;
-    border-radius:6px;text-decoration:none;
-    font-size:13px;font-weight:600;letter-spacing:.02em;
-    cursor:grab;transition:background 120ms;
-  }
-  .bm:hover{background:#e8e8e8}
-  .bm:active{cursor:grabbing}
-  .bm.loading{background:#333;color:#666;cursor:wait}
-  .note{font-size:11px;color:#333;margin-top:8px;line-height:1.6}
-  .err{color:#c06000;font-size:11px;margin-top:12px;display:none}
-  code{background:#141414;color:#555;padding:1px 5px;border-radius:3px;font-size:10px}
-  .kbd{display:inline-block;background:#1a1a1a;border:1px solid #2a2a2a;color:#666;
-       padding:1px 5px;border-radius:3px;font-size:10px;font-family:inherit}
-  .footer{margin-top:48px;padding-top:24px;border-top:1px solid #1a1a1a;
-           font-size:10px;color:#2a2a2a}
-  .footer a{color:#444;text-decoration:none}
-  .footer a:hover{color:#888}
+  h1{font-size:24px;font-weight:500;color:#fff;margin-bottom:10px}
+  .sub{font-size:13px;color:#7a7a7a;margin-bottom:32px;line-height:1.7;max-width:58ch}
+  .panel{border:1px solid #1a1a1a;border-radius:8px;padding:24px;background:#0d0d0d}
+  .section + .section{margin-top:28px}
+  .section-title{font-size:12px;color:#9a9a9a;margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em}
+  ol,ul{padding-left:20px}
+  li{font-size:13px;line-height:1.8;color:#d4d4d4}
+  p{font-size:13px;line-height:1.8;color:#b0b0b0}
+  code{background:#141414;color:#dcdcdc;padding:1px 5px;border-radius:3px;font-size:12px}
+  .kbd{display:inline-block;background:#1a1a1a;border:1px solid #2a2a2a;color:#d4d4d4;
+       padding:1px 6px;border-radius:3px;font-size:11px;font-family:inherit}
+  .callout{margin-top:16px;padding:14px 16px;border-left:2px solid #4ade80;background:#101010;color:#cfcfcf}
+  .footer{margin-top:28px;font-size:11px;color:#666}
+  .footer a{color:#8a8a8a;text-decoration:none}
+  .footer a:hover{color:#fff}
 </style>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  var base = location.href.replace(/[^/]*$/, "");
-  var link = document.getElementById("bm-link");
-
-  Promise.all([
-    fetch(base + "assets/editor.css").then(function (r) { return r.text(); }),
-    fetch(base + "assets/editor.js").then(function (r) { return r.text(); }),
-  ])
-  .then(function (results) {
-    var css = results[0];
-    var js  = results[1];
-
-    // Inject CSS via <style> element, but run JS directly in the
-    // bookmarklet context — no <script> element needed.
-    // This bypasses CSP script-src restrictions (GitHub, etc.)
-    // because javascript: URLs run as user actions.
-    var cssInjector = "(function(){"
-      + "var s=document.createElement('style');"
-      + "s.textContent=" + JSON.stringify(css) + ";"
-      + "document.head.appendChild(s);"
-      + "})();";
-    var code = cssInjector + js;
-
-    link.href = "javascript:" + encodeURIComponent(code);
-    link.classList.remove("loading");
-  })
-  .catch(function () {
-    document.getElementById("bm-err").style.display = "block";
-    link.classList.remove("loading");
-  });
-});
-</script>
 </head>
 <body>
 <div class="wrap">
-  <div class="status"><span class="dot"></span>install</div>
-  <h1>Selector</h1>
-  <p class="sub">Point at any element. Tell your AI what to change.</p>
-  <div class="steps">
-    <div class="step">
-      <span class="num">01</span>
-      <div class="step-body">
-        <div class="step-title">Drag to bookmarks bar</div>
-        <a class="bm loading" id="bm-link" href="#">Selector</a>
-        <p class="note">one-time setup</p>
-        <p class="err" id="bm-err">Failed to load assets. Make sure this page is served over HTTP(S).</p>
+  <div class="status"><span class="dot"></span>extension-first</div>
+  <h1>Selector moved to a Chromium extension</h1>
+  <p class="sub">The bookmarklet install flow is no longer the primary path. Install Selector as an unpacked Chromium extension, then use the toolbar icon to start it on the current page.</p>
+
+  <div class="panel">
+    <div class="section">
+      <div class="section-title">Install</div>
+      <ol>
+        <li>Open your browser's extensions page: <code>chrome://extensions</code>, <code>edge://extensions</code>, or <code>brave://extensions</code>.</li>
+        <li>Enable <strong>Developer mode</strong>.</li>
+        <li>Click <strong>Load unpacked</strong>.</li>
+        <li>Select this project folder.</li>
+        <li>Pin <strong>Selector</strong> to the toolbar for direct access.</li>
+      </ol>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Launch</div>
+      <p>Main path: click the Selector toolbar icon to activate the selector immediately on the active tab.</p>
+      <div class="callout">
+        Popup is a secondary entry point. You can open it with
+        <span class="kbd">Alt+Shift+S</span>
+        or
+        <span class="kbd">Command+Shift+S</span>
+        on macOS.
       </div>
     </div>
-    <div class="step">
-      <span class="num">02</span>
-      <div class="step-body">
-        <div class="step-title">Click the bookmark on any page</div>
-        <p class="note">Works everywhere &mdash; <code>localhost</code> &middot; React &middot; Next.js &middot; production URLs</p>
-      </div>
-    </div>
-    <div class="step">
-      <span class="num">03</span>
-      <div class="step-body">
-        <div class="step-title">Select &rarr; Copy &rarr; Paste into your AI</div>
-        <p class="note">
-          <span class="kbd">&#8984;C</span> copies a structured prompt with element metadata<br>
-          Paste into Claude Code &middot; Codex &middot; Cursor &middot; any AI assistant
-        </p>
-      </div>
+
+    <div class="section">
+      <div class="section-title">Migration note</div>
+      <p>This page no longer builds bookmarklet assets. If you were using the old bookmark flow, switch to the unpacked extension install above.</p>
     </div>
   </div>
+
   <div class="footer">
-    <a href="https://github.com/oil-oil/selector" target="_blank">GitHub</a>
+    <a href="https://github.com/oil-oil/selector" target="_blank" rel="noreferrer">GitHub</a>
   </div>
 </div>
 </body>

@@ -1,3 +1,4 @@
+/* Shared by bookmarklet/editor.js and extension runtime.js; no bookmarklet-only CSS hooks required. */
 /* ── Reset ───────────────────────────────────────────────── */
 .ai-editor-root,
 .ai-editor-root * {
