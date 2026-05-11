@@ -742,7 +742,7 @@
   function buildPromptText() {
     if (selectedElements.length === 0) return "";
 
-    const lines = ["Page: " + location.pathname, ""];
+    const lines = ["Page: " + buildPageIdentity(), ""];
     selectedElements.forEach((el, i) => {
       const ctx = buildElementContext(el, i + 1);
       lines.push(`${i + 1}. ${elementLabel(el)} <${ctx.tag}>`);
@@ -750,6 +750,7 @@
       if (ctx.source) lines.push(`   source: ${ctx.source}`);
       if (ctx.react) lines.push(`   react: ${ctx.react}`);
       if (ctx.text) lines.push(`   text: "${ctx.text}"`);
+      if (ctx.context) lines.push(`   context: ${ctx.context}`);
       Object.entries(ctx.dataAttrs).forEach(([k, v]) => lines.push(`   ${k}: ${v}`));
       if (ctx.outerHTML) lines.push(`   html: ${ctx.outerHTML}`);
 
@@ -850,11 +851,51 @@
       selector: buildSelector(el),
       tag: el.tagName.toLowerCase(),
       text: truncate(el.textContent, 80),
+      context: buildContextText(el),
       classes: Array.from(el.classList),
       outerHTML: el.outerHTML.slice(0, 200),
       dataAttrs,
       ...reactInfo,
     };
+  }
+
+  function buildPageIdentity() {
+    const hash = (location.hash || "").trim();
+    if (/^#(?:!\/|\/)/.test(hash)) return hash;
+    const path = `${location.pathname || ""}${location.search || ""}`;
+    return path || "/";
+  }
+
+  function buildContextText(el) {
+    let node = el;
+    for (let depth = 0; node && depth < 3; depth += 1) {
+      const parent = node.parentElement;
+      if (!parent) break;
+      const texts = uniqueTexts(
+        Array.from(parent.children)
+          .filter((child) => !isEditorElement(child))
+          .map((child) => truncate(normalizeText(child.textContent), 30))
+          .filter(Boolean)
+      );
+      if (texts.length >= 2) return texts.slice(0, 4).join(" | ");
+      node = parent;
+    }
+    return "";
+  }
+
+  function normalizeText(value) {
+    return (value || "").replace(/\s+/g, " ").trim();
+  }
+
+  function uniqueTexts(items) {
+    const seen = new Set();
+    const result = [];
+    for (const item of items) {
+      if (seen.has(item)) continue;
+      seen.add(item);
+      result.push(item);
+    }
+    return result;
   }
 
   function buildSelector(el) {
@@ -880,7 +921,7 @@
 
   function truncate(s, max) {
     if (!s) return "";
-    s = s.replace(/\s+/g, " ").trim();
+    s = normalizeText(s);
     return s.length > max ? s.slice(0, max) + "…" : s;
   }
 

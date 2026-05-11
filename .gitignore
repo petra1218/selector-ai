@@ -1,1 +1,11 @@
 .worktrees/
+.omm/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+*.temp
+*.bak
+.tmp-verification/
+docs/
